@@ -37,7 +37,7 @@ stages:
     - script: |
         curl -k -u $TL_USER:$TL_PASS --output ./twistcli $TL_CONSOLE_URL/api/v1/util/twistcli
         sudo chmod a+x ./twistcli
-        ./twistcli images scan --details -address $TL_CONSOLE_URL -u $TL_USER -p $TL_PASS $(Build.Repository.Name):$(Build.BuildId)
+        ./twistcli images scan --details -address $TL_CONSOLE_URL -u $TL_USER -p $TL_PASS $ImageName
       
       displayName: 'Scan image with Twistlock' 
     - task: Docker@1

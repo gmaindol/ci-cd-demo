@@ -3,8 +3,9 @@ trigger:
 
 resources:
 - repo: self
-queue:
-  name: Hosted Ubuntu 1604
+pool:
+  vmImage: 'ubuntu-latest'
+  
 variables:
 
   # Container registry service connection established during pipeline creation

@@ -1,0 +1,50 @@
+trigger:
+- master
+
+resources:
+- repo: self
+
+variables:
+
+  # Container registry service connection established during pipeline creation
+  TL_USER: 'scan'
+  TL_PASS: 'scan'
+  TL_CONSOLE_URL: 'https://40.119.233.172:8083'
+
+
+pool:
+  name: Azure Pipelines
+steps:
+- task: Docker@2
+  displayName: 'Build an image'
+  inputs:
+    containerregistrytype: 'Container Registry'
+    dockerRegistryConnection: 'docker-public'
+
+- script: |
+   
+   # Using our credentials, download twistcli from Console and make it executable
+   curl -k -u $TL_USER:$TL_PASS --output ./twistcli $TL_CONSOLE_URL/api/v1/util/twistcli
+   sudo chmod a+x ./twistcli
+   
+   # Run the scan with twistcli, providing detailed results in Azure DevOps and
+   # pushing the results to the Twistlock console.
+   # --details returns all vulnerabilities & compliance issues rather than just summaries.
+   # -address points to our Twistlock console
+   # -u and -p provide credentials for the console.  These creds only need the CI User role.
+   # Finally, we provide the name of the image we built with 'docker build', above.
+   ./twistcli images scan --details -address $TL_CONSOLE_URL -u $TL_USER -p $TL_PASS $(Build.Repository.Name):$(Build.BuildId)
+   
+   # Add --vulnerability-threshold and/or --compliance-threshold to this command to
+   # fail builds based on the thresholds.
+   # See twistcli documentation for more details.
+      
+  displayName: 'Scan image with Twistlock'
+
+- task: Docker@2
+  displayName: 'Push an image'
+  inputs:
+    containerregistrytype: 'Container Registry'
+    dockerRegistryConnection: 'docker-public'
+    action: 'Push an image'
+    includeSourceTags: true

@@ -35,17 +35,11 @@ stages:
         buildContext: '.'
 
     - script: |
-   
-   # Using our credentials, download twistcli from Console and make it executable
-   curl -k -u $TL_USER:$TL_PASS --output ./twistcli $TL_CONSOLE_URL/api/v1/util/twistcli
-   sudo chmod a+x ./twistcli
-   ./twistcli images scan --details -address $TL_CONSOLE_URL -u $TL_USER -p $TL_PASS $(Build.Repository.Name):$(Build.BuildId)
-   
-   # Add --vulnerability-threshold and/or --compliance-threshold to this command to
-   # fail builds based on the thresholds.
-   # See twistcli documentation for more details.
+        curl -k -u $TL_USER:$TL_PASS --output ./twistcli $TL_CONSOLE_URL/api/v1/util/twistcli
+        sudo chmod a+x ./twistcli
+        ./twistcli images scan --details -address $TL_CONSOLE_URL -u $TL_USER -p $TL_PASS $(Build.Repository.Name):$(Build.BuildId)
       
-  displayName: 'Scan image with Twistlock' 
+      displayName: 'Scan image with Twistlock' 
     - task: Docker@1
       displayName: 'Push the Docker image to Dockerhub'
       inputs:
